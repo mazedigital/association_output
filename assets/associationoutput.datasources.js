@@ -5,10 +5,15 @@
 		var context = $('#ds-context'),
 			elements = Symphony.Elements.contents.find('[name*="xml_elements"]'),
 			content = elements.parents('fieldset.settings'),
-			output = Symphony.Elements.contents.find('fieldset.association-output');
+			output = Symphony.Elements.contents.find('fieldset.association-output'),
+			fromExtensions;
 
 		// Hide Data Source interface from select
 		context.find('[data-context="association-output"]').remove();
+		fromExtensions = context.find('[data-label="from_extensions"]');
+		if(fromExtensions.find('option').length == 0) {
+			fromExtensions.remove();
+		}
 
 		// Reposition associated output
 		content.after(output);

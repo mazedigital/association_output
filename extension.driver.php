@@ -1,37 +1,7 @@
 <?php
 
-require_once EXTENSIONS . '/association_output/data-sources/datasource.associations.php';
-
-Class extension_association_output extends Extension
+class extension_association_output extends Extension
 {
-    private static $provides = array();
-
-    public static function registerProviders()
-    {
-        self::$provides = array(
-            'data-sources' => array(
-                'AssociationOutput' => AssociationOutput::getName()
-            )
-        );
-
-        return true;
-    }
-
-    public static function providerOf($type = null)
-    {
-        self::registerProviders();
-
-        if (is_null($type)) {
-            return self::$provides;
-        }
-
-        if (!isset(self::$provides[$type])) {
-            return array();
-        }
-
-        return self::$provides[$type];
-    }
-
     public function getSubscribedDelegates()
     {
         return array(
@@ -42,8 +12,8 @@ Class extension_association_output extends Extension
             ),
             array(
                 'page' => '/backend/',
-                'delegate' => 'InitaliseAdminPageHead',
-                'callback' => 'appendAssociationSelector'
+                'delegate' => 'AdminPagePreGenerate',
+                'callback' => 'buildEditor'
             ),
             array(
                 'page'      => '/blueprints/datasources/',
@@ -64,13 +34,18 @@ Class extension_association_output extends Extension
     public function appendAssociatedEntries($context)
     {
         $datasource = $context['datasource'];
+        $section_id = $datasource->getSource();
         $xml = $context['xml'];
         $parameters = $context['param_pool'];
 
         if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS)) {
             foreach ($datasource->dsParamINCLUDEDASSOCIATIONS as $name => $settings) {
                 $transcriptions = array();
-                $entry_ids = array_unique($parameters['ds-' . $datasource->dsParamROOTELEMENT . '.' . $name]);
+                $entry_ids = null;
+
+                if (!empty($parameters)) {
+                    $entry_ids = array_unique($parameters['ds-' . $datasource->dsParamROOTELEMENT . '.' . $name]);
+                }
 
                 if (!empty($entry_ids)) {
                     if (!is_numeric($entry_ids[0])) {
@@ -91,7 +66,7 @@ Class extension_association_output extends Extension
                         $entry_ids = array_values($transcriptions);
                     } 
 
-                    $associated_xml = $this->fetchAssociatedEntries($settings, $entry_ids);
+                    $associated_xml = $this->fetchAssociatedEntries($settings, $entry_ids, $section_id);
                     $associated_items = $this->groupAssociatedEntries($associated_xml);
                     $this->includeAssociatedEntries($xml, $associated_items, $name, $transcriptions);
                 }
@@ -108,10 +83,10 @@ Class extension_association_output extends Extension
      *  An array of associated entry ids
      * @return XMLElement
      */
-    private function fetchAssociatedEntries($settings, $entry_ids = array())
+    private function fetchAssociatedEntries($settings, $entry_ids = array(), $section_id)
     {
         $datasource = DatasourceManager::create('associations');
-        $datasource->dsParamSOURCE = $settings['section_id'];
+        $datasource->dsParamSOURCE = $section_id;
         $datasource->dsParamFILTERS['system:id'] = implode($entry_ids, ', ');
         $datasource->dsParamINCLUDEDELEMENTS = $settings['elements'];
 
@@ -200,8 +175,9 @@ Class extension_association_output extends Extension
             // Prepare associations
             $associations = array();
             foreach ($elements as $element) {
-                $element = explode('|#|', $element);
-                $associations[$element[0]]['elements'][] = $element[1];
+                list($field_id, $field_handle, $elements) = explode('|#|', $element);
+                $associations[$field_handle]['field_id'] = $field_id;
+                $associations[$field_handle]['elements'][] = $elements;
             }
 
             // Prepare variable string
@@ -227,17 +203,76 @@ Class extension_association_output extends Extension
     }
 
     /**
-     * Append interface to select association output to Data Source editor.
+     * Build interface to select association output to Data Source editor.
      *
      * @param mixed $context
      *  Delegate context including page object
      */
-    public function appendAssociationSelector($context)
+    public function buildEditor($context)
     {
         $callback = Symphony::Engine()->getPageCallback();
 
-        if ($callback['driver'] == 'blueprintsdatasources' && $callback['context']['page'] !== 'index') {
+        if ($callback['driver'] == 'blueprintsdatasources' && !empty($callback['context'])) {
             Administration::instance()->Page->addScriptToHead(URL . '/extensions/association_output/assets/associationoutput.datasources.js');
+
+            // Get existing associations
+            if ($callback['context'][0] === 'edit') {
+                $name = $callback['context'][1];
+                $datasource = DatasourceManager::create($name);
+                $settings = $datasource->dsParamINCLUDEDASSOCIATIONS;
+                $settings['section_id'] = $datasource->getSource();
+            }
+
+            // Build interface
+            $wrapper = $context['oPage']->Contents->getChildByName('form', 0);
+
+            $fieldset = new XMLElement('fieldset');
+            $fieldset->setAttribute('class', 'settings association-output');
+            $fieldset->setAttribute('data-context', 'sections');
+            $fieldset->appendChild(new XMLElement('legend', __('Associated Content')));
+
+            $options = array();
+            $sections = SectionManager::fetch();
+            foreach ($sections as $section) {
+                $section_id = $section->get('id');
+                $section_handle = $section->get('handle');
+                $associations = SectionManager::fetchParentAssociations($section_id);
+
+                if (!empty($associations)) {
+                    foreach ($associations as $association) {
+                        $elements = array();
+                        $label = FieldManager::fetchHandleFromID($association['child_section_field_id']);
+                        $fields = FieldManager::fetch(null, $association['parent_section_id']);
+                        foreach ($fields as $field) {
+                            $name = $field->get('element_name');
+                            $value = $association['child_section_field_id']  . '|#|' . $label . '|#|' . $name;
+                            $selected = false;
+
+                            if ($section_id == $settings['section_id'] && isset($settings[$label])) {
+                                if (in_array($name, $settings[$label]['elements'])) {
+                                    $selected = true;
+                                }
+                            }
+
+                            $elements[] = array($value, $selected, $name);
+                        }
+
+
+                        $options[] = array(
+                            'label' => $label,
+                            'data-label' => $section_id,
+                            'options' => $elements
+                        );
+                    }
+               }
+            }
+
+            $label = Widget::Label(__('Included Associations'));
+            $select = Widget::Select('fields[includedassociations][]', $options, array('multiple' => 'multiple'));
+            $label->appendChild($select);
+
+            $fieldset->appendChild($label);
+            $wrapper->appendChild($fieldset);
         }
-    }
+    }    
 }

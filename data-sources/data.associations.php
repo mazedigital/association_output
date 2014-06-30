@@ -5,16 +5,13 @@ require_once TOOLKIT . '/class.datasource.php';
 class datasourceassociations extends SectionDatasource
 {
     public $dsParamROOTELEMENT = 'associations';
-    public $dsParamORDER = 'desc';
-    public $dsParamPAGINATERESULTS = 'yes';
-    public $dsParamLIMIT = '20';
+    public $dsParamPAGINATERESULTS = 'no';
     public $dsParamSTARTPAGE = '1';
     public $dsParamREDIRECTONEMPTY = 'no';
-    public $dsParamASSOCIATEDENTRYCOUNTS = 'no';
     public $dsParamSORT = 'system:id';
-    public $dsParamSOURCE = 0;
-    public $dsParamFILTERS = array();
+    public $dsParamASSOCIATEDENTRYCOUNTS = 'no';
     public $dsParamINCLUDEDELEMENTS = array();
+    public $dsParamSOURCE = 0;
 
     public function about()
     {

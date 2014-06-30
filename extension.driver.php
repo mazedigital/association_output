@@ -45,6 +45,16 @@ Class extension_association_output extends Extension
                 'delegate' => 'InitaliseAdminPageHead',
                 'callback' => 'appendAssociationSelector'
             ),
+            array(
+                'page'      => '/blueprints/datasources/',
+                'delegate'  => 'DatasourcePreCreate',
+                'callback'  => 'saveDataSource'
+            ),
+            array(
+                'page'      => '/blueprints/datasources/',
+                'delegate'  => 'DatasourcePreEdit',
+                'callback'  => 'saveDataSource'
+            )            
         );
     }
 
@@ -183,17 +193,37 @@ Class extension_association_output extends Extension
     public function saveDataSource($context)
     {
         $contents = $context['contents'];
-        $associations = $_POST['fields']['includedassociations'];
+        $elements = $_POST['fields']['includedassociations'];
 
-        if(!isset($associations)) return;
+        if (isset($elements)) {
 
-        $contents = str_replace(
-            "<!-- VAR LIST -->",
-            "public \$dsParamINCLUDEDASSOCIATIONS = $included;\n\t\t<!-- VAR LIST -->",
-            $contents
-        );
+            // Prepare associations
+            $associations = array();
+            foreach ($elements as $element) {
+                $element = explode('|#|', $element);
+                $associations[$element[0]]['elements'][] = $element[1];
+            }
 
-        $context['contents'] = $contents;
+            // Prepare variable string
+            $included = var_export($associations, true);
+            $included = str_replace("  ", "    ", $included);
+            $included = str_replace("array (", "array(", $included);
+            $included = str_replace(" => \n    array", " => array", $included);
+            $included = str_replace(" => \n        array", " => array", $included);
+            $included = preg_replace("/\d+ => /", "", $included);
+            $included = preg_replace("/,(\n)( +)?\)/", "$1$2)", $included);
+            $included = str_replace("\n    ", "\n        ", $included);
+            $included = preg_replace("/\)$/", "    )", $included);
+
+            // Store included associations
+            $contents = str_replace(
+                "<!-- INCLUDED ELEMENTS -->",
+                "<!-- INCLUDED ELEMENTS -->\n    public \$dsParamINCLUDEDASSOCIATIONS = $included;",
+                $contents
+            );
+
+            $context['contents'] = $contents;
+        }
     }
 
     /**
@@ -208,15 +238,6 @@ Class extension_association_output extends Extension
 
         if ($callback['driver'] == 'blueprintsdatasources' && $callback['context']['page'] !== 'index') {
             Administration::instance()->Page->addScriptToHead(URL . '/extensions/association_output/assets/associationoutput.datasources.js');
-            // Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/association_output/assets/associationoutput.datasources.css');
         }
-
-        // if($url_context[0] == 'edit') {
-        //     $ds = $url_context[1];
-        //     $dsm = new DatasourceManager(Symphony::Engine());
-        //     $datasource = $dsm->create($ds, NULL, false);
-        //     $cache = $datasource->dsParamCACHE;
-        // }
-        // if(is_null($cache)) $cache = 0;
     }
 }

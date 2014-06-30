@@ -20,6 +20,11 @@ class AssociationOutput extends DataSource implements iDatasource
 
     }
 
+    public function getClass()
+    {
+        return __CLASS__;
+    }
+
     public function settings()
     {
 
@@ -56,13 +61,14 @@ class AssociationOutput extends DataSource implements iDatasource
             if (!empty($associations)) {
                 foreach ($associations as $association) {
                     $elements = array();
+                    $label = FieldManager::fetchHandleFromID($association['child_section_field_id']);
                     $fields = FieldManager::fetch(null, $association['parent_section_id']);
                     foreach ($fields as $field) {
-                        $elements[] = array($field->get('element_name'), false);
+                        $elements[] = array($label . '|#|' . $field->get('element_name'), false, $field->get('element_name'));
                     }
 
                     $options[] = array(
-                        'label' => FieldManager::fetchHandleFromID($association['child_section_field_id']),
+                        'label' => $label,
                         'data-label' => $section_id,
                         'options' => $elements
                     );
@@ -71,7 +77,7 @@ class AssociationOutput extends DataSource implements iDatasource
         }
 
         $label = Widget::Label(__('Included Associations'));
-        $select = Widget::Select('fields[includedassociations]', $options, array('multiple' => 'multiple'));
+        $select = Widget::Select('fields[includedassociations][]', $options, array('multiple' => 'multiple'));
         $label->appendChild($select);
 
         $fieldset->appendChild($label);

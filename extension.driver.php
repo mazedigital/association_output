@@ -86,7 +86,7 @@ class extension_association_output extends Extension
     private function fetchAssociatedEntries($settings, $entry_ids = array(), $section_id)
     {
         $datasource = DatasourceManager::create('associations', null, false);
-        $datasource->dsParamSOURCE = $section_id;
+        $datasource->dsParamSOURCE = $settings['section_id'];
         $datasource->dsParamFILTERS['system:id'] = implode($entry_ids, ', ');
         $datasource->dsParamINCLUDEDELEMENTS = $settings['elements'];
 
@@ -175,7 +175,8 @@ class extension_association_output extends Extension
             // Prepare associations
             $associations = array();
             foreach ($elements as $element) {
-                list($field_id, $field_handle, $elements) = explode('|#|', $element);
+                list($section_id, $field_id, $field_handle, $elements) = explode('|#|', $element);
+                $associations[$field_handle]['section_id'] = $section_id;
                 $associations[$field_handle]['field_id'] = $field_id;
                 $associations[$field_handle]['elements'][] = $elements;
             }
@@ -245,7 +246,7 @@ class extension_association_output extends Extension
                         $fields = FieldManager::fetch(null, $association['parent_section_id']);
                         foreach ($fields as $field) {
                             $name = $field->get('element_name');
-                            $value = $association['child_section_field_id']  . '|#|' . $label . '|#|' . $name;
+                            $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $name;
                             $selected = false;
 
                             if ($section_id == $settings['section_id'] && isset($settings[$label])) {

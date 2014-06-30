@@ -1,7 +1,36 @@
 <?php
 
+require_once EXTENSIONS . '/association_output/data-sources/datasource.associations.php';
+
 Class extension_association_output extends Extension
 {
+    private static $provides = array();
+
+    public static function registerProviders()
+    {
+        self::$provides = array(
+            'data-sources' => array(
+                'AssociationOutput' => AssociationOutput::getName()
+            )
+        );
+
+        return true;
+    }
+
+    public static function providerOf($type = null)
+    {
+        self::registerProviders();
+
+        if (is_null($type)) {
+            return self::$provides;
+        }
+
+        if (!isset(self::$provides[$type])) {
+            return array();
+        }
+
+        return self::$provides[$type];
+    }
 
     public function getSubscribedDelegates()
     {
@@ -10,7 +39,12 @@ Class extension_association_output extends Extension
                 'page'      => '/frontend/',
                 'delegate'  => 'DataSourcePostExecute',
                 'callback'  => 'appendAssociatedEntries'
-            )
+            ),
+            array(
+                'page' => '/backend/',
+                'delegate' => 'InitaliseAdminPageHead',
+                'callback' => 'appendAssociationSelector'
+            ),
         );
     }
 
@@ -138,5 +172,51 @@ Class extension_association_output extends Extension
                 }
             }
         }
+    }
+
+    /**
+     * Save included associations.
+     *
+     * @param mixed $context
+     *  Delegate context including string contents of the data souce PHP file
+     */
+    public function saveDataSource($context)
+    {
+        $contents = $context['contents'];
+        $associations = $_POST['fields']['includedassociations'];
+
+        if(!isset($associations)) return;
+
+        $contents = str_replace(
+            "<!-- VAR LIST -->",
+            "public \$dsParamINCLUDEDASSOCIATIONS = $included;\n\t\t<!-- VAR LIST -->",
+            $contents
+        );
+
+        $context['contents'] = $contents;
+    }
+
+    /**
+     * Append interface to select association output to Data Source editor.
+     *
+     * @param mixed $context
+     *  Delegate context including page object
+     */
+    public function appendAssociationSelector($context)
+    {
+        $callback = Symphony::Engine()->getPageCallback();
+
+        if ($callback['driver'] == 'blueprintsdatasources' && $callback['context']['page'] !== 'index') {
+            Administration::instance()->Page->addScriptToHead(URL . '/extensions/association_output/assets/associationoutput.datasources.js');
+            // Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/association_output/assets/associationoutput.datasources.css');
+        }
+
+        // if($url_context[0] == 'edit') {
+        //     $ds = $url_context[1];
+        //     $dsm = new DatasourceManager(Symphony::Engine());
+        //     $datasource = $dsm->create($ds, NULL, false);
+        //     $cache = $datasource->dsParamCACHE;
+        // }
+        // if(is_null($cache)) $cache = 0;
     }
 }

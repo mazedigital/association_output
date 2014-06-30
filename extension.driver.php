@@ -85,7 +85,7 @@ class extension_association_output extends Extension
      */
     private function fetchAssociatedEntries($settings, $entry_ids = array(), $section_id)
     {
-        $datasource = DatasourceManager::create('associations');
+        $datasource = DatasourceManager::create('associations', null, false);
         $datasource->dsParamSOURCE = $section_id;
         $datasource->dsParamFILTERS['system:id'] = implode($entry_ids, ', ');
         $datasource->dsParamINCLUDEDELEMENTS = $settings['elements'];

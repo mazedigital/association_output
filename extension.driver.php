@@ -146,7 +146,7 @@ class extension_association_output extends Extension
             // Prepare associations
             $associations = array();
             foreach ($elements as $element) {
-                $this->buildAssociationSettings(&$associations, $element);
+                $this->buildAssociationSettings($associations, $element);
             }
 
             // Prepare variable string
@@ -171,7 +171,7 @@ class extension_association_output extends Extension
      * @param string $element
      *  Included element values
      */
-    private function buildAssociationSettings($associations, $element)
+    private function buildAssociationSettings(&$associations, $element)
     {
         list($section_id, $field_id, $field_handle, $elements) = explode('|#|', $element);
         $associations[$field_handle]['section_id'] = $section_id;
@@ -236,7 +236,7 @@ class extension_association_output extends Extension
      * @param mixed $context
      *  Delegate context including page object
      */
-    public function unsetOutputParameters($context)
+    public function unsetOutputParameters(&$context)
     {
         $datasource = $context['datasource'];
         $associations = $datasource->dsParamINCLUDEDASSOCIATIONS;
@@ -254,7 +254,7 @@ class extension_association_output extends Extension
 
             // Remove dynamic output parameters
             $name = $original->dsParamROOTELEMENT;
-            $this->removeOutputParameters(&$context['param_pool'], $name, $dynamic_parameters);
+            $this->removeOutputParameters($context['param_pool'], $name, $dynamic_parameters);
         }
     }
 
@@ -268,7 +268,7 @@ class extension_association_output extends Extension
      * @param array $parameters
      *  Parameters that should be removed
      */
-    private function removeOutputParameters($param_pool, $name, $parameters)
+    private function removeOutputParameters(&$param_pool, $name, $parameters)
     {
         foreach ($parameters as $parameter) {
             $handle = 'ds-' . $name . '.' . $parameter;
@@ -301,16 +301,16 @@ class extension_association_output extends Extension
 
                 if (!empty($entry_ids)) {
                     if (!is_numeric($entry_ids[0])) {
-                        $this->fetchEntryIdsByValues(&$entry_ids, &$transcriptions, $settings['field_id']);
+                        $this->fetchEntryIdsByValues($entry_ids, $transcriptions, $settings['field_id']);
                     }
 
                     // Append associated entries
                     $associated_xml = $this->fetchAssociatedEntries($settings, $section_id, $entry_ids);
                     $associated_items = $this->groupAssociatedEntries($associated_xml);
-                    $this->includeAssociatedEntries(&$xml, $associated_items, $name, $transcriptions);
+                    $this->includeAssociatedEntries($xml, $associated_items, $name, $transcriptions);
 
                     // Clean up parameter pool
-                    $this->unsetOutputParameters(&$context);
+                    $this->unsetOutputParameters($context);
                 }
             }
         }
@@ -326,7 +326,7 @@ class extension_association_output extends Extension
      * @param number $field_id
      *  Field ID
      */
-    private function fetchEntryIdsByValues($entries, $transcriptions, $field_id)
+    private function fetchEntryIdsByValues(&$entries, &$transcriptions, $field_id)
     {
         $value_list = "'" . implode($entries, "', '") . "'";
         $data = Symphony::Database()->fetch(
@@ -398,7 +398,7 @@ class extension_association_output extends Extension
      * @param array $transcriptions
      *  An array mapping field handles to entry ids
      */
-    private function includeAssociatedEntries($xml, $associated_items, $name, $transcriptions)
+    private function includeAssociatedEntries(&$xml, $associated_items, $name, $transcriptions)
     {
         $entries = $xml->getChildren();
         if (!empty($entries)) {

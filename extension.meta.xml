@@ -13,6 +13,10 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="0.4.0" date="2014-07-01" min="2.4">
+			- Added parameter pool clean-up (removing dynamic output parameters not set in the Data Source)
+			- General clean-up
+		</release>
 		<release version="0.3.0" date="2014-06-30" min="2.4">
 			- Added interface to Data Source editor
 		</release>

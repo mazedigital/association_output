@@ -13,6 +13,10 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="0.5.0" date="2014-07-02" min="2.5">
+			- Fixed field selector (now only shows selected associated sections)
+			- General clean-up
+		</release>
 		<release version="0.4.1" date="2014-07-01" min="2.4">
 			- Fixed variable references
 		</release>

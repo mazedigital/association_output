@@ -1,56 +1,65 @@
 (function($, Symphony) {
 	'use strict';
 
-	$(document).on('ready.associationoutput', function() {
-		var context = $('#ds-context'),
-			elements = Symphony.Elements.contents.find('[name*="xml_elements"]'),
-			content = elements.parents('fieldset.settings'),
-			output = Symphony.Elements.contents.find('fieldset.association-output'),
-			fromExtensions;
+	Symphony.Extensions.AssociationOutput = function() {
+		var associativeFields = [],
+			context, elements, content, output;
 
-		// Hide Data Source interface from select
-		context.find('[data-context="association-output"]').remove();
-		fromExtensions = context.find('[data-label="from_extensions"]');
-		if(fromExtensions.find('option').length == 0) {
-			fromExtensions.remove();
-		}
+		var init = function() {
+			context = $('#ds-context');
+			elements = Symphony.Elements.contents.find('[name*="xml_elements"]');
+			content = elements.parents('fieldset.settings');
+			output = Symphony.Elements.contents.find('fieldset.association-output');
 
-		// Reposition associated output
-		content.after(output);
+			// Reposition associated output
+			content.after(output);
 
-		// Contextually display fields
-		output.find('select optgroup').each(function() {
+			// Contextually display fields
+			output.find('select optgroup').each(displayFields);
+
+			// Contextually display field selector
+			elements.on('change.associationoutput', displayFieldSelector);
+			elements.trigger('change.associationoutput');
+		};
+
+		var displayFields = function() {
 			var optgroup = $(this),
 				select = optgroup.parents('select'),
-				section = optgroup.attr('data-label');
+				section = optgroup.attr('data-label'),
+				field = this.label;
 
-			// Remove option groups
+			// Store and hide option group
+			associativeFields.push(section + ':' + field);
 			optgroup.remove();
 
 			// Display contextual option groups
 			context.on('change.associationoutput', function() {
 				if(this.value == section) {
-					var options = optgroup.clone(true);
+					var associations = elements.val(),
+						visible = (select.find('optgroup[label="' + field + '"]:visible').length > 0),
+						selected = ($.inArray(field, associations) > -1);
 
-					select.find('optgroup[data-label!="' + options.attr('data-label') + '"]').remove();
-					select.append(options);
+					if(selected && !visible) {
+						optgroup.clone(true).appendTo(select);
+					}
+					else if(!selected && visible) {
+						select.find('optgroup[label="' + field + '"]').remove();
+					}
+				}
+				else {
+					select.find('optgroup[label="' + field + '"][data-label!="' + this.value + '"]').remove();
 				}
 			});
-		});
+		};
 
-		// Set context
-		context.trigger('change.associationoutput');
-
-		// Contextually display field selector
-		elements.on('change.associationoutput', function() {
+		var displayFieldSelector = function() {
 			var selected = elements.val(),
+				section = context.val(),
 				visible = false;
 
 			if(selected !== null) {
 				$.each(selected, function() {
-					var associative = output.find('optgroup[label="' + this + '"]');
-
-					if(associative.length) {
+					if($.inArray(section + ':' + this, associativeFields) > -1) {
 						visible = true;
 					}
 				});
@@ -58,11 +67,21 @@
 
 			if(visible === true) {
 				output.show();
+				context.trigger('change.associationoutput');
 			}
 			else {
 				output.hide();
 			}
-		}).trigger('change.associationoutput');
+		};
+
+		// API
+		return {
+			init: init
+		};
+	}();
+
+	$(document).on('ready.associationoutput', function() {
+		Symphony.Extensions.AssociationOutput.init();
 	});
 
 })(window.jQuery, window.Symphony);

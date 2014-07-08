@@ -2,6 +2,9 @@
 
 class extension_association_output extends Extension
 {
+    private $names = array();
+    private $parameters = array();
+
     public function getSubscribedDelegates()
     {
         return array(
@@ -224,6 +227,10 @@ class extension_association_output extends Extension
                 $datasource->dsParamPARAMOUTPUT = array();
             }
 
+            // Store original data
+            $this->names[get_class($datasource)] = $datasource->dsParamROOTELEMENT;
+            $this->parameters[get_class($datasource)] = $datasource->dsParamPARAMOUTPUT;
+
             // Add missing output parameters
             $fields = array_keys($associations);
             $datasource->dsParamPARAMOUTPUT = array_merge($datasource->dsParamPARAMOUTPUT, $fields);
@@ -244,16 +251,15 @@ class extension_association_output extends Extension
         if (!empty($associations)) {
 
             // Get original settings
-            $handle = substr(get_class($datasource), 10);
-            $original = DatasourceManager::create($handle);
+            $class = get_class($datasource);
+            $original_parameters = $this->parameters[$class];
 
             // Extract dynamic output parameters
-            $original_parameters = (array) $original->dsParamPARAMOUTPUT;
             $current_parameters = (array) $datasource->dsParamPARAMOUTPUT;
-            $dynamic_parameters = array_diff($current_parameters, $original_parameters);
+            $dynamic_parameters = array_values(array_diff($current_parameters, $original_parameters));
 
             // Remove dynamic output parameters
-            $name = $original->dsParamROOTELEMENT;
+            $name = $this->names[$class];
             $this->removeOutputParameters($context['param_pool'], $name, $dynamic_parameters);
         }
     }

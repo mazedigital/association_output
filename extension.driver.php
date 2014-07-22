@@ -319,7 +319,7 @@ class extension_association_output extends Extension
                     }
 
                     // Append associated entries
-                    $associated_xml = $this->fetchAssociatedEntries($settings, $section_id, $entry_ids);
+                    $associated_xml = $this->fetchAssociatedEntries($datasource, $settings, $section_id, $entry_ids);
                     $associated_items = $this->groupAssociatedEntries($associated_xml);
                     $this->includeAssociatedEntries($xml, $associated_items, $name, $transcriptions);
 
@@ -370,14 +370,18 @@ class extension_association_output extends Extension
      *  An array of associated entry ids
      * @return XMLElement
      */
-    private function fetchAssociatedEntries($settings, $section_id, $entry_ids = array())
+    private function fetchAssociatedEntries($parentsource, $settings, $section_id, $entry_ids = array())
     {
-        $datasource = DatasourceManager::create('associations', null, false);
-        $datasource->dsParamSOURCE = $settings['section_id'];
-        $datasource->dsParamFILTERS['system:id'] = implode($entry_ids, ', ');
-        $datasource->dsParamINCLUDEDELEMENTS = $settings['elements'];
+        $childsource = DatasourceManager::create('associations', null, false);
+        $childsource->dsParamSOURCE = $settings['section_id'];
+        $childsource->dsParamFILTERS['system:id'] = implode($entry_ids, ', ');
+        $childsource->dsParamINCLUDEDELEMENTS = $settings['elements'];
 
-        return $datasource->execute();
+        if ($parentsource->dsParamHTMLENCODE === 'yes') {
+            $childsource->dsParamHTMLENCODE = 'yes';
+        }
+
+        return $childsource->execute();
     }
 
     /**

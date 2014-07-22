@@ -12,6 +12,7 @@ class datasourceassociations extends SectionDatasource
     public $dsParamASSOCIATEDENTRYCOUNTS = 'no';
     public $dsParamINCLUDEDELEMENTS = array();
     public $dsParamSOURCE = 0;
+    public $dsParamHTMLENCODE = '';
 
     public function about()
     {

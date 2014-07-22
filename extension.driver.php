@@ -113,17 +113,20 @@ class extension_association_output extends Extension
         $fields = FieldManager::fetch(null, $association['parent_section_id']);
 
         foreach ($fields as $field) {
-            $name = $field->get('element_name');
-            $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $name;
-            $selected = false;
+            $modes = $field->fetchIncludableElements();
 
-            if ($section_id == $settings['section_id'] && isset($settings[$label])) {
-                if (in_array($name, $settings[$label]['elements'])) {
-                    $selected = true;
+            foreach ($modes as $mode) {
+                $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $mode;
+                $selected = false;
+
+                if ($section_id == $settings['section_id'] && isset($settings[$label])) {
+                    if (in_array($mode, $settings[$label]['elements'])) {
+                        $selected = true;
+                    }
                 }
-            }
 
-            $elements[] = array($value, $selected, $name);
+                $elements[] = array($value, $selected, $mode);
+            }
         }
 
         return array(

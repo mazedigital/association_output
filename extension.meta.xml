@@ -13,8 +13,11 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="1.0.0beta3" date="2014-07-22" min="2.5">
+			- Added HTML encoding forwarding
+		</release>
 		<release version="1.0.0beta2" date="2014-07-22" min="2.5">
-			- Add field modes
+			- Added field modes
 		</release>
 		<release version="1.0.0beta" date="2014-07-02" min="2.5">
 			- Prepare first release

@@ -306,7 +306,11 @@ class extension_association_output extends Extension
                 $parameter_name = 'ds-' . $datasource->dsParamROOTELEMENT . '.' . $name;
 
                 if (!empty($parameters[$parameter_name])) {
-                    $entry_ids = array_unique($parameters[$parameter_name]);
+                    if (!is_array($parameters[$parameter_name])) {
+                        $entry_ids = array($parameters[$parameter_name]);
+                    } else {
+                        $entry_ids = array_unique($parameters[$parameter_name]);
+                    }
                 }
 
                 if (!empty($entry_ids)) {

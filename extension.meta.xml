@@ -13,37 +13,8 @@
 		</author>
 	</authors>
 	<releases>
-		<release version="1.0.0RC" date="2014-08-01" min="2.5">
-			- Prepare first release
-		</release>
-		<release version="1.0.0beta3" date="2014-07-22" min="2.5">
-			- Added HTML encoding forwarding
-		</release>
-		<release version="1.0.0beta2" date="2014-07-22" min="2.5">
-			- Added field modes
-		</release>
-		<release version="1.0.0beta" date="2014-07-02" min="2.5">
-			- Prepare first release
-		</release>
-		<release version="0.5.0" date="2014-07-02" min="2.5">
-			- Fixed field selector (now only shows selected associated sections)
-			- General clean-up
-		</release>
-		<release version="0.4.1" date="2014-07-01" min="2.4">
-			- Fixed variable references
-		</release>
-		<release version="0.4.0" date="2014-07-01" min="2.4">
-			- Added parameter pool clean-up (removing dynamic output parameters not set in the Data Source)
-			- General clean-up
-		</release>
-		<release version="0.3.0" date="2014-06-30" min="2.4">
-			- Added interface to Data Source editor
-		</release>
-		<release version="0.2.0" date="2014-06-25" min="2.4">
-			- Added inline XML inclusion
-		</release>
-		<release version="0.1.0" date="2014-06-04" min="2.4">
-			- Initial release.
+		<release version="1.0.0" date="2014-08-13" min="2.5">
+			- First release
 		</release>
 	</releases>
 </extension>

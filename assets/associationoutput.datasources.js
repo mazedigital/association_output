@@ -36,7 +36,7 @@
 			context.on('change.associationoutput', function() {
 				if(this.value == section) {
 					var associations = elements.val(),
-						visible = (select.find('optgroup[label="' + field + '"]:visible').length > 0),
+						visible = (select.find('optgroup[label="' + field + '"]').length > 0),
 						selected = ($.inArray(field, associations) > -1);
 
 					if(selected && !visible) {

@@ -321,7 +321,7 @@ class extension_association_output extends Extension
                     // Append associated entries
                     $associated_xml = $this->fetchAssociatedEntries($datasource, $settings, $section_id, $entry_ids);
                     $associated_items = $this->groupAssociatedEntries($associated_xml);
-                    $this->includeAssociatedEntries($xml, $associated_items, $name, $transcriptions);
+                    $this->findAssociatedEntries($xml, $associated_items, $name, $transcriptions);
 
                     // Clean up parameter pool
                     $this->unsetOutputParameters($context);
@@ -405,6 +405,34 @@ class extension_association_output extends Extension
     }
 
     /**
+     * Find associative entries in the existing Data Source output
+     *
+     * @param XMLElement $xml
+     *  The existing XML
+     * @param array $associated_items
+     *  An array linking entry ids to XML entries
+     * @param string $name
+     *  The associative field name
+     * @param array $transcriptions
+     *  An array mapping field handles to entry ids
+     */
+    private function findAssociatedEntries(&$xml, $associated_items, $name, $transcriptions)
+    {
+        $children = $xml->getIterator();
+        if (!empty($children)) {
+            foreach ($children as $child) {
+                $nodeName = $child->getName();
+
+                if ($nodeName !== 'entry') {
+                    $this->findAssociatedEntries($child, $associated_items, $name, $transcriptions);
+                } else {
+                    $this->includeAssociatedEntries($child, $associated_items, $name, $transcriptions);;
+                }
+            }
+        }
+    }
+
+    /**
      * Attach associated entries to the existing Data Source output
      *
      * @param XMLElement $xml
@@ -416,33 +444,28 @@ class extension_association_output extends Extension
      * @param array $transcriptions
      *  An array mapping field handles to entry ids
      */
-    private function includeAssociatedEntries(&$xml, $associated_items, $name, $transcriptions)
+    private function includeAssociatedEntries(&$entry, $associated_items, $name, $transcriptions)
     {
-        $entries = $xml->getChildren();
-        if (!empty($entries)) {
-            foreach ($entries as $entry) {
-                $fields = $entry->getChildren();
+        $fields = $entry->getChildren();
 
-                if ($entry->getName() === 'entry' && !empty($fields)) {
-                    foreach ($fields as $field) {
-                        $items = $field->getChildren();
+        if (!empty($fields)) {
+            foreach ($fields as $field) {
+                $items = $field->getChildren();
 
-                        if ($field->getName() === $name && !empty($items)) {
-                            foreach ($items as $item) {
-                                $id = $item->getAttribute('id');
+                if ($field->getName() === $name && !empty($items)) {
+                    foreach ($items as $item) {
+                        $id = $item->getAttribute('id');
 
-                                if (empty($id)) {
-                                    $handle = $item->getAttribute('handle');
-                                    $id = $transcriptions[$handle];
-                                }
+                        if (empty($id)) {
+                            $handle = $item->getAttribute('handle');
+                            $id = $transcriptions[$handle];
+                        }
 
-                                $association = $associated_items[$id];
-                                if (!empty($association)) {
-                                    $item->replaceValue('');
-                                    $item->setChildren($associated_items[$id]);
-                                    $item->setAttribute('id', $id);
-                                }
-                            }
+                        $association = $associated_items[$id];
+                        if (!empty($association)) {
+                            $item->replaceValue('');
+                            $item->setChildren($associated_items[$id]);
+                            $item->setAttribute('id', $id);
                         }
                     }
                 }

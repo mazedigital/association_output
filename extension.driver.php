@@ -299,6 +299,10 @@ class extension_association_output extends Extension
         $xml = $context['xml'];
         $parameters = $context['param_pool'];
 
+        if (is_string($xml)) {
+            $xml = XMLElement::convertFromXMLString($xml);
+        }
+
         if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS)) {
             foreach ($datasource->dsParamINCLUDEDASSOCIATIONS as $name => $settings) {
                 $transcriptions = array();

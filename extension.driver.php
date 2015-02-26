@@ -236,7 +236,7 @@ class extension_association_output extends Extension
 
             // Add missing output parameters
             $fields = array_keys($associations);
-            $datasource->dsParamPARAMOUTPUT = array_merge($datasource->dsParamPARAMOUTPUT, $fields);
+            $datasource->dsParamPARAMOUTPUT = array_unique(array_merge($datasource->dsParamPARAMOUTPUT, $fields));
         }
     }
 

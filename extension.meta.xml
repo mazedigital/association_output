@@ -13,6 +13,10 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="1.1.0" date="2015-06-12" min="2.5">
+			- Added Cacheable Data Source support
+			- #10: Fixed handling of sections without fields (thanks @tonyarnold!)
+		</release>
 		<release version="1.0.1" date="2014-08-19" min="2.5">
 			- Fixed grouped XML handling
 		</release>

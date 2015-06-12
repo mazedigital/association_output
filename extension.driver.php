@@ -112,20 +112,22 @@ class extension_association_output extends Extension
         $label = FieldManager::fetchHandleFromID($association['child_section_field_id']);
         $fields = FieldManager::fetch(null, $association['parent_section_id']);
 
-        foreach ($fields as $field) {
-            $modes = $field->fetchIncludableElements();
+        if (is_array($fields) || $fields instanceof Traversable) {
+            foreach ($fields as $field) {
+                $modes = $field->fetchIncludableElements();
 
-            foreach ($modes as $mode) {
-                $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $mode;
-                $selected = false;
+                foreach ($modes as $mode) {
+                    $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $mode;
+                    $selected = false;
 
-                if ($section_id == $settings['section_id'] && isset($settings[$label])) {
-                    if (in_array($mode, $settings[$label]['elements'])) {
-                        $selected = true;
+                    if ($section_id == $settings['section_id'] && isset($settings[$label])) {
+                        if (in_array($mode, $settings[$label]['elements'])) {
+                            $selected = true;
+                        }
                     }
-                }
 
-                $elements[] = array($value, $selected, $mode);
+                    $elements[] = array($value, $selected, $mode);
+                }
             }
         }
 
@@ -418,6 +420,10 @@ class extension_association_output extends Extension
      */
     private function findAssociatedEntries(&$xml, $associated_items, $name, $transcriptions)
     {
+        if (is_string($xml)) {
+            return;
+        }
+
         $children = $xml->getIterator();
         if (!empty($children)) {
             foreach ($children as $child) {

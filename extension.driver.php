@@ -301,7 +301,15 @@ class extension_association_output extends Extension
         $xml = $context['xml'];
         $parameters = $context['param_pool'];
 
-        if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS)) {
+        if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS) && !$datasource->addedAssociationOutput) {
+        
+            //only convert xml to object if not an object and has associations
+            $xml = is_object($xml) ? $xml : XMLElement::convertFromXMLString($datasource->dsParamROOTELEMENT,$xml);
+
+            if (!$datasource->addedAssociationOutput){
+                $datasource->addedAssociationOutput = false;
+            }
+
             foreach ($datasource->dsParamINCLUDEDASSOCIATIONS as $name => $settings) {
                 $transcriptions = array();
                 $entry_ids = null;
@@ -324,10 +332,35 @@ class extension_association_output extends Extension
                     $associated_xml = $this->fetchAssociatedEntries($datasource, $settings, $section_id, $entry_ids);
                     $associated_items = $this->groupAssociatedEntries($associated_xml);
                     $this->findAssociatedEntries($xml, $associated_items, $name, $transcriptions);
+                
+                    //set added association output to true
+                    $datasource->addedAssociationOutput = true;
 
                     // Clean up parameter pool
                     $this->unsetOutputParameters($context);
                 }
+            }
+
+            if ($datasource->addedAssociationOutput){
+                /**
+                 * Allows extensions to do other processing after the association output data is added to the XML, and parameters cleaned
+                 *
+                 * @since Association Output 1.2.0
+                 * @delegate AssociationOutputPostExecute
+                 * @param string $context
+                 * '/frontend/'
+                 * @param DataSource $datasource
+                 *  The Datasource object
+                 * @param XMLElement $xml
+                 *  The XML output of the data source.
+                 * @param array $param_pool
+                 *  The existing param pool including output parameters of any previous data sources
+                 */
+                Symphony::ExtensionManager()->notifyMembers('AssociationOutputPostExecute', '/frontend/', array(
+                    'datasource' => &$datasource,
+                    'xml' => &$xml,
+                    'param_pool' => &$parameters
+                ));
             }
         }
     }

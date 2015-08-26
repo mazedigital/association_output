@@ -13,6 +13,10 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="1.2.0" date="2015-08-25" min="2.5">
+			- Added a datasource property which when set will not run the association output (useful for caching)
+			- Add AssociationOutputPostExecute delegate so other extensions can take actions after the Association Output is added to the XML
+		</release>
 		<release version="1.1.0" date="2015-06-12" min="2.5">
 			- Added Cacheable Data Source support
 			- #10: Fixed handling of sections without fields (thanks @tonyarnold!)

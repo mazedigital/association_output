@@ -113,9 +113,10 @@ class extension_association_output extends Extension
         $fields = FieldManager::fetch(null, $association['parent_section_id']);
 
         if (is_array($fields) || $fields instanceof Traversable) {
-            foreach ($fields as $field) {
-                $modes = $field->fetchIncludableElements();
+          foreach ($fields as $field) {
+              $modes = $field->fetchIncludableElements();
 
+              if (is_array($modes) || $modes instanceof Traversable) {
                 foreach ($modes as $mode) {
                     $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $mode;
                     $selected = false;
@@ -128,7 +129,8 @@ class extension_association_output extends Extension
 
                     $elements[] = array($value, $selected, $mode);
                 }
-            }
+              }
+          }
         }
 
         return array(

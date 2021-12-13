@@ -13,6 +13,9 @@
 		</author>
 	</authors>
 	<releases>
+	  <release version="1.2.2" date="2021-12-13" min="2.7.10" max="2.x.x">
+			- PHP8 »Undefined property«-fix (requires PHP7+)
+		</release>
 	  <release version="1.2.1" date="2017-10-17" min="2.5">
 			- Included @tonyarnold’s fix https://github.com/mazedigital/association_output/issues/10#issuecomment-77831551
 		</release>

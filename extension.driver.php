@@ -225,7 +225,7 @@ class extension_association_output extends Extension
     public function setOutputParameters($context)
     {
         $datasource = $context['datasource'];
-        $associations = $datasource->dsParamINCLUDEDASSOCIATIONS;
+        $associations = $datasource->dsParamINCLUDEDASSOCIATIONS ?? false;
 
         if (!empty($associations)) {
 

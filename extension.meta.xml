@@ -2,7 +2,7 @@
 <extension id="association_output" status="development" xmlns="http://symphony-cms.com/schemas/extension/1.0">
 	<name>Association Output</name>
 	<description>Inline XML</description>
-	<repo type="github">https://github.com/hananils/association_output</repo>
+	<repo type="github">https://github.com/animaux/association_output</repo>
 	<types>
 		<type>Associations</type>
 	</types>

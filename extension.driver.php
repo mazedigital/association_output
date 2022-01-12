@@ -303,12 +303,14 @@ class extension_association_output extends Extension
         $xml = $context['xml'];
         $parameters = $context['param_pool'];
 
-        if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS) && empty($datasource->addedAssociationOutput)) {
+        if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS) && empty($datasource->addedAssociationOutput ?? false)) {
         
             //only convert xml to object if not an object and has associations
             $xml = is_object($xml) ? $xml : XMLElement::convertFromXMLString($datasource->dsParamROOTELEMENT,$xml);
-
-            if (!$datasource->addedAssociationOutput){
+            
+            $datasource_aaO = $datasource->addedAssociationOutput ?? false;
+            
+            if (!$datasource_aaO) {
                 $datasource->addedAssociationOutput = false;
             }
 
@@ -411,7 +413,7 @@ class extension_association_output extends Extension
     {
         $childsource = DatasourceManager::create('associations', null, false);
         $childsource->dsParamSOURCE = $settings['section_id'];
-        $childsource->dsParamFILTERS['system:id'] = implode($entry_ids, ', ');
+        $childsource->dsParamFILTERS['system:id'] = implode(', ', $entry_ids);
         $childsource->dsParamINCLUDEDELEMENTS = $settings['elements'];
 
         if ($parentsource->dsParamHTMLENCODE === 'yes') {

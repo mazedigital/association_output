@@ -501,10 +501,10 @@ class extension_association_output extends Extension
 
                         if (empty($id)) {
                             $handle = $item->getAttribute('handle');
-                            $id = $transcriptions[$handle];
+                            $id = $transcriptions[$handle] ?? null;
                         }
 
-                        $association = $associated_items[$id];
+                        $association = $associated_items[$id] ?? null;
                         if (!empty($association)) {
                             $item->replaceValue('');
                             $item->setChildren($associated_items[$id]);

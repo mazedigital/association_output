@@ -303,7 +303,7 @@ class extension_association_output extends Extension
         $xml = $context['xml'];
         $parameters = $context['param_pool'];
 
-        if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS) && !empty($datasource->addedAssociationOutput)) {
+        if (!empty($datasource->dsParamINCLUDEDASSOCIATIONS) && empty($datasource->addedAssociationOutput)) {
         
             //only convert xml to object if not an object and has associations
             $xml = is_object($xml) ? $xml : XMLElement::convertFromXMLString($datasource->dsParamROOTELEMENT,$xml);

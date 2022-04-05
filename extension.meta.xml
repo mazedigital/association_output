@@ -13,6 +13,9 @@
 		</author>
 	</authors>
 	<releases>
+	  <release version="1.2.5" date="2022-04-04" min="2.7.10" max="2.x.x">
+			- More PHP8 fixes from @Sadie
+		</release>
 	  <release version="1.2.4" date="2022-01-12" min="2.7.10" max="2.x.x">
 			- More PHP8 … undefined array keys
 		</release>

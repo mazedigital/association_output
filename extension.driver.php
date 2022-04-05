@@ -57,7 +57,7 @@ class extension_association_output extends Extension
             if ($callback['context'][0] === 'edit') {
                 $name = $callback['context'][1];
                 $datasource = DatasourceManager::create($name);
-                $settings = $datasource->dsParamINCLUDEDASSOCIATIONS;
+                $settings = isset($datasource->dsParamINCLUDEDASSOCIATIONS) ? $datasource->dsParamINCLUDEDASSOCIATIONS : false;
                 $settings['section_id'] = $datasource->getSource();
             }
 
@@ -121,7 +121,7 @@ class extension_association_output extends Extension
                     $value = $association['parent_section_id'] . '|#|' . $association['parent_section_field_id']  . '|#|' . $label . '|#|' . $mode;
                     $selected = false;
 
-                    if ($section_id == $settings['section_id'] && isset($settings[$label])) {
+                    if ($section_id == (isset($settings['section_id'])) && isset($settings[$label])) {
                         if (in_array($mode, $settings[$label]['elements'])) {
                             $selected = true;
                         }
@@ -381,7 +381,7 @@ class extension_association_output extends Extension
      */
     private function fetchEntryIdsByValues(&$entries, &$transcriptions, $field_id)
     {
-        $value_list = "'" . implode($entries, "', '") . "'";
+        $value_list = "'" . implode("', '", $entries) . "'";
         $data = Symphony::Database()->fetch(
             sprintf(
                 "SELECT `entry_id`, `handle`

@@ -79,7 +79,7 @@ class extension_association_output extends Extension
 
                 if (!empty($associations)) {
                     foreach ($associations as $association) {
-                        $options[] = $this->buildElementOptions($association, $settings, $section_id);
+                        $options[] = $this->buildElementOptions($association, $settings ?? null, $section_id);
                     }
                 }
             }

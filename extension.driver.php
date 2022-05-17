@@ -149,6 +149,7 @@ class extension_association_output extends Extension
     public function saveDataSource($context)
     {
         $contents = $context['contents'];
+        $_POST['fields']['includedassociations'] = $_POST['fields']['includedassociations'] ?? null;
         $elements = $_POST['fields']['includedassociations'];
 
         if (isset($elements)) {

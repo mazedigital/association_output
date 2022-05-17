@@ -13,7 +13,10 @@
 		</author>
 	</authors>
 	<releases>
-	  <release version="1.2.6" date="2022-05-12" min="2.7.10" max="2.x.x">
+	  <release version="1.2.7" date="2022-05-17" min="2.7.10" max="2.x.x">
+			- Yet another PHP8 fix
+		</release>
+		<release version="1.2.6" date="2022-05-12" min="2.7.10" max="2.x.x">
 			- Another PHP8 fix
 		</release>
 	  <release version="1.2.5" date="2022-04-04" min="2.7.10" max="2.x.x">
